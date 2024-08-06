@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	_ "math"
+	"math"
+	"math/big"
 	"strconv"
 )
 
@@ -19,6 +20,63 @@ func mulVal(num1, num2 float64) float64 {
 }
 func divVal(num1, num2 float64) float64 {
 	return num1 / num2
+}
+func sqrtVal(num float64) float64 {
+	if num < 0 {
+
+		fmt.Println("Can not take the square root of a negative numbers.")
+		return 0
+	} else {
+		return math.Sqrt(num)
+	}
+}
+func powVal(num1, num2 float64) float64 {
+	return math.Pow(num1, num2)
+
+}
+func sqrVal(num float64) float64 {
+	return num * num
+}
+func logVal(num1, num2 float64) float64 {
+	if num1 <= 0 || num2 <= 0 {
+		fmt.Println("Logarithm base and argument must be greater than zero")
+		return 0
+	} else {
+		return math.Log(num1) / math.Log(num2)
+	}
+}
+func lnVal(num float64) float64 {
+	if num <= 0 {
+		fmt.Printf("Ln logarithm argument must be greater than zero")
+		return 0
+	} else {
+		return math.Log(num)
+	}
+}
+func factVal(num float64) *big.Int {
+	if num < 0 {
+		fmt.Println("Factorial of a negative number is not defined")
+		return big.NewInt(0)
+	}
+
+	fact := big.NewInt(1)
+	n := big.NewInt(int64(num))
+
+	for i := big.NewInt(1); i.Cmp(n) <= 0; i.Add(i, big.NewInt(1)) {
+		fact.Mul(fact, i)
+	}
+
+	return fact
+}
+
+func absVal(num float64) float64 {
+	return math.Abs(num)
+}
+func sinVal(num float64) float64 {
+	return math.Sin(num)
+}
+func cosVal(num float64) float64 {
+	return math.Cos(num)
 }
 
 // The function for User's request to continue or exit the program
@@ -73,6 +131,97 @@ func clearResult(result *float64) {
 	}
 }
 
+// Scientific Calculator
+func sciCalc() {
+	var operation, trigonometry string
+	var num1, num2, result float64
+
+	for {
+		if result == 0 {
+			fmt.Println("\nEnter 1st Number: ")
+			num1 = scanWithTypeCheck()
+		} else {
+			num1 = result
+		}
+
+		for {
+			fmt.Print("\nEnter operation (+, -, *, /, sqrt, pow, sqr, log, ln, fact, abs, trigo): ")
+			fmt.Scan(&operation)
+
+			switch operation {
+			case "+":
+				fmt.Println("\nEnter 2nd Number: ")
+				num2 = scanWithTypeCheck()
+				result = addVal(num1, num2)
+			case "-":
+				fmt.Println("\nEnter 2nd Number: ")
+				num2 = scanWithTypeCheck()
+				result = subVal(num1, num2)
+			case "*":
+				fmt.Println("\nEnter 2nd Number: ")
+				num2 = scanWithTypeCheck()
+				result = mulVal(num1, num2)
+			case "/":
+				fmt.Println("\nEnter 2nd Number: ")
+				num2 = scanWithTypeCheck()
+				result = divVal(num1, num2)
+			case "sqrt":
+				result = sqrtVal(num1)
+			case "pow":
+				fmt.Println("\nEnter 2nd Number: ")
+				num2 = scanWithTypeCheck()
+				result = powVal(num1, num2)
+			case "sqr":
+				result = sqrVal(num1)
+			case "log":
+				fmt.Println("\nEnter 2nd Number: ")
+				num2 = scanWithTypeCheck()
+				result = logVal(num1, num2)
+			case "ln":
+				result = lnVal(num1)
+			case "fact":
+				fact := factVal(num1)
+				fmt.Printf("\nResult: %s\n", fact.String())
+				break
+
+			case "abs":
+				result = absVal(num1)
+			case "trigo":
+				fmt.Println("\nEnter trigonometric operation: (sin, cos, tan, cot, csc, sec) ")
+				fmt.Scan(&trigonometry)
+				switch trigonometry {
+				case "sin":
+					result = sinVal(num1)
+				case "cos":
+					result = cosVal(num1)
+				case "tan":
+					result = sinVal(num1) / cosVal(num1)
+				case "cot":
+					result = cosVal(num1) / sinVal(num1)
+				case "csc":
+					result = 1 / sinVal(num1)
+				case "sec":
+					result = 1 / cosVal(num1)
+				}
+			default:
+				fmt.Println("\nInvalid operation. Please enter a valid operation.")
+				continue
+			}
+
+			if operation != "fact" {
+				fmt.Printf("\nResult: %v\n", result)
+			}
+			break
+		}
+		if !isContinue() {
+			break
+		} else {
+			clearResult(&result)
+		}
+	}
+}
+
+// Basic Calculator
 func bscCalc() {
 	var operation string
 	var num1, num2, result float64
@@ -104,29 +253,23 @@ func bscCalc() {
 
 			case "+":
 				result = addVal(num1, num2)
-				fmt.Printf("\nResult: %g \n", result)
-
 			case "-":
 				result = subVal(num1, num2)
-				fmt.Printf("\nResult: %g \n", result)
-
 			case "*":
 				result = mulVal(num1, num2)
-				fmt.Printf("\nResult: %g \n", result)
-
 			case "/":
 				if num2 == 0 {
 					fmt.Println("\nCan't division by zero.")
 					continue
 				}
 				result = divVal(num1, num2)
-				fmt.Printf("\nResult: %g \n", result)
 
 			default:
-
 				fmt.Println("\nInvalid operation. Please enter a valid operation.\n")
-
 			}
+
+			fmt.Printf("\nResult: %g\n", result)
+
 			break
 		}
 		if !isContinue() {
@@ -139,6 +282,7 @@ func bscCalc() {
 	}
 }
 
+// Main Function
 func main() {
 
 	type1 := flag.Bool("type1", false, "Basic Calculator")
@@ -151,7 +295,7 @@ func main() {
 
 	} else if *type2 {
 
-		fmt.Println("Scientific Calculator not yet implemented.")
+		sciCalc()
 
 	} else {
 		fmt.Println("Invalid operation. Use -type1 for basic or -type2 for scientific calculator.")
